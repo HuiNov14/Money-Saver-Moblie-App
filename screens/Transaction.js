@@ -1,15 +1,22 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList } from 'react-native'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import IonIcon from "react-native-vector-icons/Ionicons";
 import { useNavigation } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
-const Transaction = () => {
+
+const Transaction = ({ navigation, route }) => {
 
     const [selectedMonth, setSelectedMonth] = useState('THIS MONTH');
+    const { dataProp } = route.params || {};
 
     const handleMonthPress = (month) => {
         setSelectedMonth(month);
     };
+
+    const SwToEdit = (itemProp) => {
+        navigation.navigate('AddScreen', { itemProp: itemProp });
+    }
 
     const [data, setData] = useState([
         { price: '10,000', img: require('../assets/restaurant.png'), cateType: 'expense', categories: 'Food & beverage', date: '2023/12/26', note: 'dinner', with: 'friend' },
@@ -19,6 +26,12 @@ const Transaction = () => {
         { price: '90,000', img: require('../assets/restaurant.png'), cateType: 'expense', categories: 'Food & beverage', date: '2023/12/26', note: 'dinner', with: 'friend' },
         { price: '70,000', img: require('../assets/restaurant.png'), cateType: 'expense', categories: 'Food & beverage', date: '2023/12/26', note: 'dinner', with: 'friend' },
     ])
+
+    useEffect(() => {
+        if (dataProp && dataProp.price) {
+            setData(prevData => [...prevData, dataProp]);
+        }
+    }, [dataProp]);
 
     return (
         <View style={styles.container} >
@@ -107,25 +120,30 @@ const Transaction = () => {
                 keyExtractor={(item, index) => index.toString()}
                 data={data}
                 renderItem={({ item }) => (
-                    <View style={styles.detailItem}>
-                        <View style={styles.detailTopItem}>
-                            <Text style={styles.dateItem}>{item.date}</Text>
-                        </View>
-                        <View style={styles.detailMainItem}>
-                            <View style={styles.CateContainer}>
-                                <Image
-                                    style={styles.imgItem}
-                                    source={item.img}
-                                />
-                                <View style={styles.CateContainer1}>
-                                    <Text style={styles.CateItem}>{item.categories}</Text>
-                                    <Text style={styles.NoteItem}>{item.note}</Text>
-                                </View>
+                    <TouchableOpacity
+                        onPress={() => SwToEdit(item)}
+                        activeOpacity={0.9}
+                    >
+                        <View style={styles.detailItem}>
+                            <View style={styles.detailTopItem}>
+                                <Text style={styles.dateItem}>{item.date}</Text>
                             </View>
+                            <View style={styles.detailMainItem}>
+                                <View style={styles.CateContainer}>
+                                    <Image
+                                        style={styles.imgItem}
+                                        source={item.img}
+                                    />
+                                    <View style={styles.CateContainer1}>
+                                        <Text style={styles.CateItem}>{item.categories}</Text>
+                                        <Text style={styles.NoteItem}>{item.note}</Text>
+                                    </View>
+                                </View>
 
-                            <Text style={styles.PriceItem}>{item.price}</Text>
+                                <Text style={styles.PriceItem}>{item.price}</Text>
+                            </View>
                         </View>
-                    </View>
+                    </TouchableOpacity>
                 )}
             />
         </View>

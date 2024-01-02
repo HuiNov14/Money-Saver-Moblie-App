@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Button, Image, TouchableOpacity, TextInput, Modal } from 'react-native';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from './AuthContext';
 import Categories from './Categories';
 import { useNavigation } from '@react-navigation/native';
@@ -14,10 +14,16 @@ const Stack = createStackNavigator();
 
 function AddScreen({ navigation, route }) {
 
-  const [title, setTitle] = useState('');
-  const [context, setContext] = useState('');
+  const [price, setPrice] = useState('');
+  const [note, setNote] = useState('');
+  const [who, setWho] = useState('');
+  const [textCate1, setTextCate1] = useState('');
+  const [imgCate1, setImgCate1] = useState('');
+  const [editFlag, setEditFlat] = useState(false);
+  const [typeCate, setTypeCate] = useState('');
+  const [openAlert, setOpenAlert] = useState(false);
 
-  const { textCate, imgCate } = route.params || {};
+  const [data, setData] = useState({ price: '', img: require('../assets/question.png'), cateType: '', categories: '', date: '', note: '', with: '' });
 
   //DATE 
   const [open, setOpen] = useState(false);
@@ -25,8 +31,62 @@ function AddScreen({ navigation, route }) {
   const today = new Date();
   const startDate = getFormatedDate(today.setDate(today.getDate() + 1), 'YYYY/MM/DD');
 
+  const { textCate, imgCate, cateType } = route.params || {};
+  const { itemProp } = route.params || {};
+
+  useEffect(() => {
+    if (itemProp) {
+      setPrice(itemProp.price)
+      setNote(itemProp.note)
+      setWho(itemProp.with)
+      setDate(itemProp.date)
+      setTextCate1(itemProp.categories)
+      setImgCate1(itemProp.img)
+      setEditFlat(true)
+      setTypeCate(cateType)
+    }
+  }, [itemProp])
+
+  useEffect(() => {
+    setTextCate1(textCate)
+    setImgCate1(imgCate)
+    setTypeCate(cateType)
+  }, [textCate, imgCate, cateType])
+
+  useEffect(() => {
+    navigation.navigate('Transaction', { dataProp: data });
+  }, [data]);
+
   const onPressHandle = () => {
     navigation.navigate('Select Categories');
+  }
+
+  const ExitHandle = () => {
+    navigation.navigate('Transaction')
+    setPrice('')
+    setNote('')
+    setDate('')
+    setWho('')
+    setTextCate1('')
+    setImgCate1('')
+    setEditFlat(false)
+  }
+
+  const saveHandle = () => {
+    if (!price || !date || !textCate1) {
+      setOpenAlert(!openAlert);
+    }
+    else {
+      const newData = { price, img: imgCate1, cateType, categories: textCate1, date, note, with: who };
+      setData(newData);
+      setPrice('')
+      setNote('')
+      setDate('')
+      setWho('')
+      setTextCate1('')
+      setImgCate1('')
+      setEditFlat(false)
+    }
   }
 
   function handleDateChange(propDate) {
@@ -40,31 +100,31 @@ function AddScreen({ navigation, route }) {
   return (
     <View style={styles.container}>
       <View style={styles.background}>
-        <TouchableOpacity onPress={() => navigation.navigate('Transaction')} style={styles.touchable}>
+        <TouchableOpacity onPress={() => ExitHandle()} style={styles.touchable}>
           <IonIcon name="close" size={30} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerText}>
-          Home
+          {editFlag ? 'Edit' : 'New'}
         </Text>
       </View>
 
       <TextInput
         multiline
         placeholder="0.........đ"
-        value={title}
-        onChangeText={(text) => setTitle(text)}
+        value={price}
+        onChangeText={(text) => setPrice(text)}
         style={[styles.textInput]}
       />
 
       <View style={styles.TextInputContainer}>
         <Image
           style={styles.imageCate}
-          source={imgCate ? imgCate : require('../assets/question.png')}
+          source={imgCate1 ? imgCate1 : require('../assets/question.png')}
         />
         <TouchableOpacity
           style={[styles.CateSelectStyle]}
           onPress={onPressHandle}>
-          <Text style={styles.Text}>{textCate ? textCate : 'Select Categories'}</Text>
+          <Text style={styles.Text}>{textCate1 ? textCate1 : 'Select Categories'}</Text>
         </TouchableOpacity>
       </View>
 
@@ -89,8 +149,8 @@ function AddScreen({ navigation, route }) {
         <TextInput
           multiline
           placeholder="Note....."
-          value={context}
-          onChangeText={(text) => setContext(text)}
+          value={note}
+          onChangeText={(text) => setNote(text)}
           style={[styles.textInput2]}
         />
       </View>
@@ -103,21 +163,21 @@ function AddScreen({ navigation, route }) {
         <TextInput
           multiline
           placeholder="With....."
-          value={context}
-          onChangeText={(text) => setContext(text)}
+          value={who}
+          onChangeText={(text) => setWho(text)}
           style={[styles.textInput2]}
         />
       </View>
 
       <TouchableOpacity
         style={styles.buttonContainer}
-      // onPress={() => addNote(title, context)}
+        onPress={() => saveHandle(price, imgCate1, typeCate, textCate1, date, note, who)}
       >
         <Image
           style={styles.imageStyle2}
           source={require('../assets/diskette.png')}
         />
-        <Text style={styles.buttonText}>Save</Text>
+        <Text style={styles.buttonText}>save</Text>
       </TouchableOpacity>
 
       <Modal
@@ -139,6 +199,24 @@ function AddScreen({ navigation, route }) {
               onPress={SelectDatePress}
             >
               <Text style={styles.TextClose}>Confirm</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        animationType='slide'
+        transparent={true}
+        visible={openAlert}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text>Please provide more infomation</Text>
+            <TouchableOpacity
+              style={[styles.DateClose]}
+              onPress={() => {setOpenAlert(!openAlert)}}
+            >
+              <Text style={styles.TextClose}>OK</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -294,7 +372,7 @@ const styles = StyleSheet.create({
     padding: 5,
     width: 120,
     height: 30,
-    backgroundColor: '#7bdff2', 
+    backgroundColor: '#7bdff2',
     borderRadius: 5,
   },
   TextClose: {
