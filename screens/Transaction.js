@@ -107,12 +107,10 @@ const Transaction = ({ navigation, route }) => {
     const handleMonthPress = (month) => {
         setSelectedMonth(month)
     }
-
     function handleMonthChange(propDate) {
         month = propDate.replace(/\s/g, '/');
         setDate(month)
     }
-
     function SelectMonthPress() {
         setOpen(!open)
         setSelectedMonth(date)
@@ -141,14 +139,24 @@ const Transaction = ({ navigation, route }) => {
 
         return acc;
     }, []);
-    groupedData.sort((a, b) => new Date(b.date) - new Date(a.date));
+    groupedData.sort((a, b) => {
+        const convertToDate = (dateString) => {
+            const [year, month, day] = dateString.split('/');
+            return new Date(year, month - 1, day);
+        };
 
+        // So sánh theo thứ tự từ lớn đến bé
+        return convertToDate(b.date) - convertToDate(a.date);
+    });
+
+    //Add data
     useEffect(() => {
         if (dataProp && dataProp.price) {
             addUserDataToFirestore(dataProp);
         }
     }, [dataProp]);
 
+    //Inflow and outFlow by month
     useEffect(() => {
         const sum1 = groupedData
             .filter((group) => group.date.startsWith(selectedMonth))
@@ -294,7 +302,9 @@ const Transaction = ({ navigation, route }) => {
                                                 </View>
                                             </View>
 
-                                            <Text style={styles.PriceItem}>{parseFloat(item.price).toLocaleString()}</Text>
+                                            <Text style={
+                                                item.typeCate === 'expense' ? styles.PriceItem : styles.PriceItem2
+                                            }>{parseFloat(item.price).toLocaleString()}</Text>
                                         </View>
                                     </View>
                                 </TouchableOpacity>
@@ -498,6 +508,12 @@ const styles = StyleSheet.create({
     PriceItem: {
         marginRight: 10,
         alignSelf: 'center',
+        color: 'red'
+    },
+    PriceItem2: {
+        marginRight: 10,
+        alignSelf: 'center',
+        color: 'green'
     },
     dateItem: {
         fontSize: 15,

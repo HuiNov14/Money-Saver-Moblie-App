@@ -20,12 +20,12 @@ const Signup = () => {
   const signUpHandle = async () => {
     try {
       if (password !== confirm) {
-        Alert.alert('The password and confirm password do not match.');
+        Alert.alert('Warning','The password and confirm password do not match.');
       }
       else {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         Alert.alert('Registration successful', 'Please login again');
-        console.log('Đăng ký thành công:', userCredential);
+        console.log('Đăng ký thành công:');
         navigation.goBack();
       }
     } catch (error) {

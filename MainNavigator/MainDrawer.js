@@ -1,8 +1,9 @@
 import React, { useState, useContext } from "react";
 import { createDrawerNavigator, DrawerItem } from '@react-navigation/drawer';
 import MainTab from '../screens/MainTab'
-import NotificationsDraw from '../screens/NotificationScreen'
+import About from '../screens/About'
 import Help from '../screens/Help';
+import Setting from "../screens/Setting";
 import { Ionicons } from '@expo/vector-icons';
 
 
@@ -15,18 +16,18 @@ const MainDrawer = () => {
       <Drawer.Screen
         name="Home "
         component={MainTab}
-        options={{ 
-          headerShown: showHeader, 
+        options={{
+          headerShown: showHeader,
           drawerIcon: ({ color, size }) => (
             <Ionicons name="home-outline" size={size} color={color} />
           ),
         }}
-        
+
       />
       <Drawer.Screen
-        name="Notifications"
-        component={NotificationsDraw}
-        options={{ 
+        name="About"
+        component={About}
+        options={{
           headerShown: showHeader,
           drawerIcon: ({ color, size }) => (
             <Ionicons name="notifications-outline" size={size} color={color} />
@@ -34,10 +35,20 @@ const MainDrawer = () => {
         }}
       />
       <Drawer.Screen
-        name="Helps"
+        name="Help"
         component={Help}
-        options={{ 
-          headerShown: !showHeader,
+        options={{
+          headerShown: showHeader,
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="help-circle-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Setting"
+        component={Setting}
+        options={{
+          headerShown: showHeader,
           drawerIcon: ({ color, size }) => (
             <Ionicons name="help-circle-outline" size={size} color={color} />
           ),

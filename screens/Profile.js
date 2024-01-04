@@ -1,13 +1,26 @@
 import { View, Text, StyleSheet, Button, TouchableOpacity, Image } from 'react-native';
 import React, { useContext } from 'react';
 import { AuthContext } from './AuthContext';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
-const Profile = () => {
+const Profile = ({navigation}) => {
   const { setisAuthenticated } = useContext(AuthContext);
   const handleLogout = () => {
     setisAuthenticated(false);
     console.log('Logged Out!');
   };
+
+  const helpHandle = () => {
+    navigation.navigate('Help')
+  }
+
+  const aboutHandle = () => {
+    navigation.navigate('About')
+  }
+
+  const settingHandle = () => {
+    navigation.navigate('Setting')
+  }
 
   return (
     <View style={styles.container}>
@@ -21,7 +34,7 @@ const Profile = () => {
       </View>
       <TouchableOpacity
         style={styles.buttonContainer}
-        onPress={handleLogout}
+        onPress={helpHandle}
       >
         <Image
           style={styles.imageStyle2}
@@ -31,7 +44,7 @@ const Profile = () => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.buttonContainer}
-        onPress={handleLogout}
+        onPress={settingHandle}
       >
         <Image
           style={styles.imageStyle2}
@@ -41,7 +54,7 @@ const Profile = () => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.buttonContainer}
-        onPress={handleLogout}
+        onPress={aboutHandle}
       >
         <Image
           style={styles.imageStyle2}
@@ -62,6 +75,7 @@ const Profile = () => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

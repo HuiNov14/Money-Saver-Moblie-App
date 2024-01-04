@@ -1,14 +1,31 @@
-import { View, Text, StyleSheet } from 'react-native';
-import React from 'react';
-import { Button } from 'react-native';
+import { View, Text, StyleSheet, Button, Image, TouchableOpacity, TextInput, Modal } from 'react-native';
+import React, { useContext, useState, useEffect } from 'react';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import IonIcon from "react-native-vector-icons/Ionicons";
 
-function Help() {
+function Help({ navigation }) {
+
+    const ExitHandle = () => {
+        navigation.goBack();
+    }
 
     return (
         <View style={styles.container}>
-            <Text style={styles.screenText}>
-                Helps Screen
-            </Text>
+            <View style={styles.background}>
+                <TouchableOpacity onPress={() => ExitHandle()} style={styles.touchable}>
+                    <IonIcon name="ios-arrow-back" size={30} color="black" />
+                </TouchableOpacity>
+                <Text style={styles.headerText}>
+                    Help & support
+                </Text>
+            </View>
+            <View style={styles.imgBackground}>
+                <Image
+                    style={styles.imageCate}
+                    source={require('../assets/technical-support.png')}
+                />
+                <Text style={styles.screenText}>We will update later</Text>
+            </View>
         </View>
     )
 }
@@ -16,11 +33,36 @@ function Help() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        backgroundColor: '#fcd5ce',
     },
     screenText: {
-        color: '#000',
+        marginTop: 20,
+        color: '#003049',
+        fontSize: 25,
+    },
+    background: {
+        // position: 'absolute',
+        backgroundColor: '#ffb5a7',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: 90,
+    },
+    headerText: {
+        top: 13,
+        color: 'black',
+        left: 66,
+        fontSize: 21,
+        fontWeight: 'bold',
+    },
+    touchable: {
+        top: 45,
+        left: 12,
+        width: 30,
+    },
+    imgBackground: {
+        alignItems: 'center',
+        marginTop: 200,
     },
 });
 
