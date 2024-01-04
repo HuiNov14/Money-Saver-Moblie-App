@@ -169,16 +169,24 @@ function AddScreen({ navigation, route }) {
         />
       </View>
 
-      <TouchableOpacity
-        style={styles.buttonContainer}
-        onPress={() => saveHandle(price, imgCate1, typeCate, textCate1, date, note, who)}
-      >
-        <Image
-          style={styles.imageStyle2}
-          source={require('../assets/diskette.png')}
-        />
-        <Text style={styles.buttonText}>save</Text>
-      </TouchableOpacity>
+      <View style={styles.buttonGroup}>
+        <TouchableOpacity
+          style={editFlag ? styles.buttonContainer1 : styles.buttonContainer0}
+        >
+          <Text style={styles.buttonText}>DELETE</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={editFlag? styles.buttonContainer1 : styles.buttonContainer}
+          onPress={() => saveHandle(price, imgCate1, typeCate, textCate1, date, note, who)}
+        >
+          {/* <Image
+            style={styles.imageStyle2}
+            source={require('../assets/diskette.png')}
+          /> */}
+          <Text style={styles.buttonText}>SAVE</Text>
+        </TouchableOpacity>
+      </View>
 
       <Modal
         animationType='slide'
@@ -214,7 +222,7 @@ function AddScreen({ navigation, route }) {
             <Text>Please provide more infomation</Text>
             <TouchableOpacity
               style={[styles.DateClose]}
-              onPress={() => {setOpenAlert(!openAlert)}}
+              onPress={() => { setOpenAlert(!openAlert) }}
             >
               <Text style={styles.TextClose}>OK</Text>
             </TouchableOpacity>
@@ -293,6 +301,22 @@ const styles = StyleSheet.create({
     padding: 10,
     color: '#000',
     alignSelf: 'center',
+  },
+  buttonGroup: {
+    flexDirection: 'row',
+  },
+  buttonContainer0: {
+    width: 0,
+  },
+  buttonContainer1: {
+    flexDirection: 'row',
+    width: 150,
+    height: 30,
+    justifyContent: 'center',
+    backgroundColor: '#ffb5a7',
+    borderRadius: 15,
+    marginHorizontal: 10,
+    marginTop: 50,
   },
   buttonContainer: {
     flexDirection: 'row',
