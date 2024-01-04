@@ -2,27 +2,32 @@ import React, { useState, useContext } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './AuthContext';
+import { FirebaseAuth } from '../database/firebaseConfig';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
 const Login = () => {
 
   const navigation = useNavigation();
+  const {email, setEmail, password, setPassword, isAuthenticated, setisAuthenticated} = useContext(AuthContext);
+  const auth = FirebaseAuth;
 
-  const { email, setEmail, password, setPassword, isAuthenticated, setisAuthenticated } = useContext(AuthContext);
-
-  const handleLogin = (email, password) => {
-    // Thêm xử lý đăng nhập tại đây
-    if (email === '21520910@gm.uit.edu.vn' && password === 'buiminhhuy') {
+  const handleLogin = async () => {
+    try {
+      const user = await signInWithEmailAndPassword(auth, email, password);
+      // console.log('Login Successed:', user);
+      // Alert.alert('Login Successed');
       setisAuthenticated(true);
-    } else {
-      Alert.alert('Warning', 'incorrect email or password.');
-    };
+    } catch (error) {
+      Alert.alert('Login Failed', 'Incorrect Password or Email');
+      // console.error('Login Failed:', error.code, error.message);
+    }
   };
+
   const handleOnPressSignup = () => {
     navigation.navigate('Signup');
   };
 
   return (
-
     <View style={styles.container}>
       <Image
         style={styles.imageStyle}
@@ -48,6 +53,7 @@ const Login = () => {
         </Image>
         <TextInput
           style={styles.textI}
+          secureTextEntry={true}
           placeholder="Password"
           value={password}
           onChangeText={setPassword}

@@ -1,33 +1,47 @@
-import React, { useState,useContext } from 'react';
-import { View, Text, Image, TextInput, StyleSheet, TouchableOpacity,Alert } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { View, Text, Image, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import {AuthContext} from './AuthContext'
+import { FirebaseAuth } from '../database/firebaseConfig';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
 const Signup = () => {
 
   const navigation = useNavigation();
-  const {email , setEmail,password,setPassword,isAuthenticated,setisAuthenticated} = useContext(AuthContext);
-  const [username, setUsername] = React.useState('');
-  const [confirm, setConfirm] = React.useState('');
-  const handleSignup = () => {
-    if (username === '' || email === '' || password === '' || confirm === '') {
-      Alert.alert('Warning', 'Please fill in all fields.');
-    } else if (password !== confirm) {
-      Alert.alert('Warning', 'Password and confirm password do not match.');
-    } 
-  };
-  const handleOnPressLogin =() =>{
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  // const [username, setUsername] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const auth = FirebaseAuth;
+
+  const handleOnPressLogin = () => {
     navigation.goBack();
   }
+
+  const signUpHandle = async () => {
+    try {
+      if (password !== confirm) {
+        Alert.alert('The password and confirm password do not match.');
+      }
+      else {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        Alert.alert('Registration successful', 'Please login again');
+        console.log('Đăng ký thành công:', userCredential);
+        navigation.goBack();
+      }
+    } catch (error) {
+      Alert.alert('Warning', 'Sign Up Failed');
+      console.error('Lỗi đăng ký:', error.code, error.message);
+    }
+  };
 
   return (
     <View style={styles.container}>
       <Image
         style={styles.imageStyle}
-        source={{ uri: 'https://internet-israel.com/wp-content/uploads/2018/07/React_Native_Logo-768x403.png' }}
+        source={require('../assets/piggy-bank.png')}
       />
       <Text style={styles.text}>Create New Account</Text>
-      <View style={styles.containerTextInput}>
+      {/* <View style={styles.containerTextInput}>
         <Image style={styles.imageTextInput} source={{ uri: 'https://tse4.explicit.bing.net/th?id=OIP.5ylLzBNwByczTaKBCAi9IgHaHa&pid=Api&P=0&h=220' }} />
         <TextInput
           style={styles.textI}
@@ -35,9 +49,9 @@ const Signup = () => {
           value={username}
           onChangeText={setUsername}
         />
-      </View>
+      </View> */}
       <View style={styles.containerTextInput}>
-        <Image style={styles.imageTextInput} source={{ uri: 'https://clipground.com/images/email-icon-clipart-transparent-1.png' }} />
+        <Image style={styles.imageTextInput} source={require('../assets/mail.png')} />
         <TextInput
           style={styles.textI}
           placeholder="Email"
@@ -46,25 +60,27 @@ const Signup = () => {
         />
       </View>
       <View style={styles.containerTextInput}>
-        <Image style={styles.imageTextInput} source={{ uri: 'https://tse1.mm.bing.net/th?id=OIP.PO4tSlis-6R6EjopPKu0xQHaEH&pid=Api&P=0&h=220' }} />
+        <Image style={styles.imageTextInput} source={require('../assets/padlock.png')} />
         <TextInput
           style={styles.textI}
+          secureTextEntry={true}
           placeholder="Password"
           value={password}
           onChangeText={setPassword}
         />
       </View>
       <View style={styles.containerTextInput}>
-        <Image style={styles.imageTextInput} source={{ uri: 'https://tse1.mm.bing.net/th.id=OIP.PO4tSlis-6R6EjopPKu0xQHaEH&pid=Api&P=0&h=220' }} />
+        <Image style={styles.imageTextInput} />
         <TextInput
           style={styles.textI}
+          secureTextEntry={true}
           placeholder="Confirm password"
           value={confirm}
           onChangeText={setConfirm}
         />
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleSignup}>
+      <TouchableOpacity style={styles.button} onPress={signUpHandle}>
         <Text style={styles.textLogin}>CREATE</Text>
       </TouchableOpacity>
 
@@ -83,13 +99,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#ffb5a7',
   },
   imageStyle: {
     width: 80,
     height: 80,
     borderRadius: 100,
     alignSelf: 'center',
-    marginTop: 120,
+    marginTop: 0,
   },
   text: {
     alignSelf: 'center',
@@ -111,6 +128,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: 25,
     flexDirection: 'row',
+    backgroundColor: '#ede7e3'
   },
   imageTextInput: {
     width: 27,
@@ -122,7 +140,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF8C00',
     padding: 10,
     borderRadius: 10,
-    marginTop: 15,
+    marginTop: 30,
     width: 300,
     alignSelf: 'center',
     height: 45,

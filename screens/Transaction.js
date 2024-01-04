@@ -1,25 +1,103 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, Modal } from 'react-native'
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import IonIcon from "react-native-vector-icons/Ionicons";
 import { useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import DatePicker from "react-native-modern-datepicker"
 import { getToday, getFormatedDate } from "react-native-modern-datepicker";
+import { getFirestore, collection, addDoc, doc, setDoc, getDocs, deleteDoc, updateDoc } from 'firebase/firestore';
+import { FirebaseDB } from '../database/firebaseConfig';
+import { AuthContext } from './AuthContext';
+import { setImgBasedOnCategory } from './setImg';
 
 const Transaction = ({ navigation, route }) => {
 
-    //---------------------------Data process--------------------------------//
-    const [data, setData] = useState([
-        { price: '10,000', img: require('../assets/restaurant.png'), cateType: 'expense', categories: 'Food & beverage', date: '2023/12/26', note: 'dinner', with: 'friend' },
-        { price: '10,000', img: require('../assets/restaurant.png'), cateType: 'expense', categories: 'Food & beverage', date: '2023/12/26', note: 'dinner', with: 'friend' },
-        { price: '1,000,000', img: require('../assets/salary.png'), cateType: 'income', categories: 'Salary', date: '2023/12/26', note: 'lương', with: 'friend' },
-        { price: '100,000', img: require('../assets/salary.png'), cateType: 'income', categories: 'Salary', date: '2023/12/27', note: 'lương', with: 'friend' },
-        { price: '90,000', img: require('../assets/restaurant.png'), cateType: 'expense', categories: 'Food & beverage', date: '2023/12/27', note: 'dinner', with: 'friend' },
-        { price: '70,000', img: require('../assets/restaurant.png'), cateType: 'expense', categories: 'Food & beverage', date: '2023/12/28', note: 'dinner', with: 'friend' },
-        { price: '70,000', img: require('../assets/restaurant.png'), cateType: 'expense', categories: 'Food & beverage', date: '2024/01/28', note: 'dinner', with: 'friend' },
-        { price: '70,000', img: require('../assets/restaurant.png'), cateType: 'expense', categories: 'Food & beverage', date: '2024/01/28', note: 'dinner', with: 'friend' },
-        { price: '70,000', img: require('../assets/restaurant.png'), cateType: 'expense', categories: 'Food & beverage', date: '2024/01/27', note: 'dinner', with: 'friend' },
-    ])
+    //------------------------------------------Data process------------------------------------------------//
+    const [userData, setUserData] = useState([])
+    const [total, setTotal] = useState(0)
+    const [totalMonth, setTotalMonth] = useState(0)
+    const [inflow, setInflow] = useState(0)
+    const [Outflow, setOutFlow] = useState(0)
+    const { email, setEmail } = useContext(AuthContext);
+    const userId = email;
+
+    //Thêm dữ liệu vào firebase
+    const addUserDataToFirestore = async (dataProp) => {
+        const userDocRef = doc(FirebaseDB, 'userAccounts', userId);
+
+        try {
+            // Tạo hoặc cập nhật tài liệu người dùng
+            await setDoc(userDocRef, { email: userId, totalCash: 0 });
+
+            // Thêm dữ liệu vào subcollection 'transactions'
+            const transactionsCollectionRef = collection(userDocRef, 'transactions');
+
+            const { img, ...rest } = dataProp;
+            await addDoc(transactionsCollectionRef, rest);
+
+            console.log('Dữ liệu đã được thêm vào Firestore thành công.');
+            getUserDataFromFirestore(userId);
+        } catch (error) {
+            console.error('Lỗi khi thêm dữ liệu vào Firestore:', error);
+        }
+    };
+
+    //Lấy dữ liệu từ firebase
+    const getUserDataFromFirestore = async (userId) => {
+        const userDocRef = doc(FirebaseDB, 'userAccounts', userId);
+        const transactionsCollectionRef = collection(userDocRef, 'transactions');
+
+        try {
+            const querySnapshot = await getDocs(transactionsCollectionRef);
+
+            const userData2 = []
+            let totalCash = 0
+
+            querySnapshot.forEach((doc) => {
+                userData2.push({ id: doc.id, ...doc.data() });
+                const numericPrice = parseFloat(doc.data().price);
+                const sign = doc.data().typeCate === 'income' ? 1 : -1;
+                totalCash += sign * numericPrice;
+            });
+
+            await updateDoc(userDocRef, { totalCash });
+            console.log('Lấy dữ liệu thành công');
+            setUserData(userData2)
+            setTotal(totalCash.toLocaleString('en-US'))
+
+            return userData2;
+        } catch (error) {
+            console.error('Lỗi khi lấy dữ liệu từ Firestore:', error);
+            return [];
+        }
+    };
+
+    //Xóa dữ liệu trên firebase
+    const deleteDocumentFromFirestore = async (userId, documentId) => {
+        const userDocRef = doc(FirebaseDB, 'userAccounts', userId);
+        const transactionsCollectionRef = collection(userDocRef, 'transactions');
+        const documentRef = doc(transactionsCollectionRef, documentId);
+
+        try {
+            await deleteDoc(documentRef);
+            getUserDataFromFirestore(userId);
+            console.log('Dữ liệu đã được xóa thành công.');
+        } catch (error) {
+            console.error('Lỗi khi xóa dữ liệu:', error);
+        }
+    };
+
+    const { dataProp, deleteId } = route.params || {};
+    useEffect(() => {
+        if (deleteId) {
+            deleteDocumentFromFirestore(userId, deleteId)
+        }
+    }, [deleteId]);
+    //----------------------------------------------------------------------------------------------------//
+
+    useEffect(() => {
+        getUserDataFromFirestore(userId);
+    }, [userId]);
 
     //Month Change
     const [open, setOpen] = useState(false);
@@ -45,17 +123,14 @@ const Transaction = ({ navigation, route }) => {
         navigation.navigate('AddScreen', { itemProp: itemProp });
     }
 
-    //Insert data mới
-    const { dataProp } = route.params || {};
-
-    useEffect(() => {
-        if (dataProp && dataProp.price) {
-            setData(prevData => [...prevData, dataProp]);
-        }
-    }, [dataProp]);
+    // Sử dụng hàm này trong quá trình xử lý dữ liệu
+    const updatedUserData = userData.map(item => {
+        const img = setImgBasedOnCategory(item.categories);
+        return { ...item, img };
+    });
 
     //Group data theo date
-    const groupedData = data.reduce((acc, item) => {
+    const groupedData = updatedUserData.reduce((acc, item) => {
         const existingGroup = acc.find((group) => group.date === item.date);
 
         if (existingGroup) {
@@ -66,6 +141,37 @@ const Transaction = ({ navigation, route }) => {
 
         return acc;
     }, []);
+    groupedData.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    useEffect(() => {
+        if (dataProp && dataProp.price) {
+            addUserDataToFirestore(dataProp);
+        }
+    }, [dataProp]);
+
+    useEffect(() => {
+        const sum1 = groupedData
+            .filter((group) => group.date.startsWith(selectedMonth))
+            .reduce((acc, group) => {
+                return acc + group.items.reduce((sum1, item) => {
+                    const price = parseFloat(item.price);
+                    return item.typeCate === 'income' ? sum1 + price : sum1 - 0;
+                }, 0);
+            }, 0);
+        const sum2 = groupedData
+            .filter((group) => group.date.startsWith(selectedMonth))
+            .reduce((acc, group) => {
+                return acc + group.items.reduce((sum2, item) => {
+                    const price = parseFloat(item.price);
+                    return item.typeCate === 'expense' ? sum2 + price : sum2 - 0;
+                }, 0);
+            }, 0);
+        const sum = sum1 - sum2;
+        setTotalMonth(sum.toLocaleString('en-US'));
+        setInflow(sum1.toLocaleString('en-US'))
+        setOutFlow(sum2.toLocaleString('en-US'))
+    }, [groupedData, selectedMonth]);
+
 
     //Display
     return (
@@ -75,7 +181,7 @@ const Transaction = ({ navigation, route }) => {
                     Balance
                 </Text>
                 <Text style={styles.headerText2}>
-                    900,000,000 đ
+                    {total} đ
                 </Text>
                 <View style={styles.TotalContainer}>
                     <Image
@@ -136,16 +242,16 @@ const Transaction = ({ navigation, route }) => {
             <View style={styles.reviewContainer}>
                 <View style={styles.reviewLine}>
                     <Text style={styles.reviewText}>Inflow:</Text>
-                    <Text style={styles.reviewText}>10,000,000</Text>
+                    <Text style={styles.reviewText}>{inflow}</Text>
                 </View>
                 <View style={styles.reviewLine}>
                     <Text style={styles.reviewText}>Outflow:</Text>
-                    <Text style={styles.reviewText}>9,000,000</Text>
+                    <Text style={styles.reviewText}>{Outflow}</Text>
                 </View>
                 <View style={styles.Line}></View>
                 <View style={styles.reviewLine}>
                     <Text style={styles.reviewText}></Text>
-                    <Text style={styles.reviewText}>1,000,000</Text>
+                    <Text style={styles.reviewText}>{totalMonth}</Text>
                 </View>
             </View>
 
@@ -188,7 +294,7 @@ const Transaction = ({ navigation, route }) => {
                                                 </View>
                                             </View>
 
-                                            <Text style={styles.PriceItem}>{item.price}</Text>
+                                            <Text style={styles.PriceItem}>{parseFloat(item.price).toLocaleString()}</Text>
                                         </View>
                                     </View>
                                 </TouchableOpacity>

@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, Button, Image, TouchableOpacity, TextInput, Mod
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from './AuthContext';
 import Categories from './Categories';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import IonIcon from "react-native-vector-icons/Ionicons";
 import DatePicker from "react-native-modern-datepicker"
 import { getToday, getFormatedDate } from "react-native-modern-datepicker";
@@ -22,8 +22,9 @@ function AddScreen({ navigation, route }) {
   const [editFlag, setEditFlat] = useState(false);
   const [typeCate, setTypeCate] = useState('');
   const [openAlert, setOpenAlert] = useState(false);
+  const [id, setId] = useState('');
 
-  const [data, setData] = useState({ price: '', img: require('../assets/question.png'), cateType: '', categories: '', date: '', note: '', with: '' });
+  const [data, setData] = useState({ price: '', img: require('../assets/question.png'), typeCate: '', categories: '', date: '', note: '', with: '' });
 
   //DATE 
   const [open, setOpen] = useState(false);
@@ -43,19 +44,53 @@ function AddScreen({ navigation, route }) {
       setTextCate1(itemProp.categories)
       setImgCate1(itemProp.img)
       setEditFlat(true)
-      setTypeCate(cateType)
+      setTypeCate(itemProp.typeCate)
+      setId(itemProp.id)
     }
-  }, [itemProp])
+  }, [itemProp, route])
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setTextCate1(textCate);
+      setImgCate1(imgCate);
+      setTypeCate(cateType);
+    }, [textCate, imgCate, cateType])
+  );
 
   useEffect(() => {
-    setTextCate1(textCate)
-    setImgCate1(imgCate)
-    setTypeCate(cateType)
-  }, [textCate, imgCate, cateType])
-
-  useEffect(() => {
-    navigation.navigate('Transaction', { dataProp: data });
+    navigation.navigate('Transaction', { dataProp: data, deleteId: id });
   }, [data]);
+
+  const deleteHandle = () => {
+    navigation.navigate('Transaction', { dataProp: [], deleteId: id });
+    setPrice('')
+    setNote('')
+    setDate('')
+    setWho('')
+    setTextCate1('')
+    setImgCate1('')
+    setTypeCate('')
+    setId('')
+    setEditFlat(false)
+  }
+
+  const saveHandle = () => {
+    if (!price || !date || !textCate1) {
+      setOpenAlert(!openAlert);
+    }
+    else {
+      const newData = { price, img: imgCate1, typeCate, categories: textCate1, date, note, with: who };
+      setData(newData);
+      setPrice('')
+      setNote('')
+      setDate('')
+      setWho('')
+      setTextCate1('')
+      setImgCate1('')
+      setTypeCate('')
+      setEditFlat(false)
+    }
+  }
 
   const onPressHandle = () => {
     navigation.navigate('Select Categories');
@@ -69,24 +104,9 @@ function AddScreen({ navigation, route }) {
     setWho('')
     setTextCate1('')
     setImgCate1('')
+    setTypeCate('')
+    setId('')
     setEditFlat(false)
-  }
-
-  const saveHandle = () => {
-    if (!price || !date || !textCate1) {
-      setOpenAlert(!openAlert);
-    }
-    else {
-      const newData = { price, img: imgCate1, cateType, categories: textCate1, date, note, with: who };
-      setData(newData);
-      setPrice('')
-      setNote('')
-      setDate('')
-      setWho('')
-      setTextCate1('')
-      setImgCate1('')
-      setEditFlat(false)
-    }
   }
 
   function handleDateChange(propDate) {
@@ -111,6 +131,7 @@ function AddScreen({ navigation, route }) {
       <TextInput
         multiline
         placeholder="0.........đ"
+        keyboardType='numeric'
         value={price}
         onChangeText={(text) => setPrice(text)}
         style={[styles.textInput]}
@@ -172,12 +193,13 @@ function AddScreen({ navigation, route }) {
       <View style={styles.buttonGroup}>
         <TouchableOpacity
           style={editFlag ? styles.buttonContainer1 : styles.buttonContainer0}
+          onPress={deleteHandle}
         >
           <Text style={styles.buttonText}>DELETE</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={editFlag? styles.buttonContainer1 : styles.buttonContainer}
+          style={editFlag ? styles.buttonContainer1 : styles.buttonContainer}
           onPress={() => saveHandle(price, imgCate1, typeCate, textCate1, date, note, who)}
         >
           {/* <Image

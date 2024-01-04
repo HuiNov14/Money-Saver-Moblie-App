@@ -7,7 +7,7 @@ function ExpenseCate() {
 
     const navigation = useNavigation();
     const ClickedCategories = (text, img) => {
-        navigation.navigate('AddScreen', {textCate: text, imgCate: img, typeCate: 'expense'});
+        navigation.navigate('AddScreen', {textCate: text, imgCate: img, cateType: 'expense'});
     }
 
     return (
