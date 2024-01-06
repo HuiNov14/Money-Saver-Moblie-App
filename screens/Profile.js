@@ -3,8 +3,8 @@ import React, { useContext } from 'react';
 import { AuthContext } from './AuthContext';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
-const Profile = ({navigation}) => {
-  const { setisAuthenticated } = useContext(AuthContext);
+const Profile = ({ navigation }) => {
+  const { email, setisAuthenticated } = useContext(AuthContext);
   const handleLogout = () => {
     setisAuthenticated(false);
     console.log('Logged Out!');
@@ -29,9 +29,13 @@ const Profile = ({navigation}) => {
           style={styles.imageStyle}
           source={require('../assets/piggy-bank.png')}
         />
-        <Text style={styles.NameText}>nick name</Text>
-        <Text style={styles.MailText}>mail@gmail.com</Text>
+        {/* <Text style={styles.NameText}></Text> */}
+        <Text style={styles.MailText}>{email}</Text>
       </View>
+      <Image
+        style={styles.imageStyle3}
+        source={require('../assets/adv.jpg')}
+      />
       <TouchableOpacity
         style={styles.buttonContainer}
         onPress={helpHandle}
@@ -93,6 +97,8 @@ const styles = StyleSheet.create({
   MailText: {
     color: '#003049',
     alignSelf: 'center',
+    marginBottom: 30,
+    marginTop: 10,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -101,7 +107,7 @@ const styles = StyleSheet.create({
     // backgroundColor: '#ffb5a7',
     left: 30,
     borderRadius: 15,
-    top: 470,
+    top: 150,
     marginBottom: 15,
   },
   imageStyle2: {
@@ -109,6 +115,12 @@ const styles = StyleSheet.create({
     height: 20,
     marginRight: 10,
     alignSelf: 'center',
+  },
+  imageStyle3: {
+    width: 400,
+    height: 180,
+    alignSelf: 'center',
+    marginTop: 150,
   },
   buttonText: {
     alignSelf: 'center',

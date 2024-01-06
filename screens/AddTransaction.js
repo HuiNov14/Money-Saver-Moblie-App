@@ -8,8 +8,6 @@ import DatePicker from "react-native-modern-datepicker"
 import { getToday, getFormatedDate } from "react-native-modern-datepicker";
 import { createStackNavigator } from '@react-navigation/stack';
 
-// import { db } from './db';
-
 const Stack = createStackNavigator();
 
 function AddScreen({ navigation, route }) {
@@ -23,7 +21,6 @@ function AddScreen({ navigation, route }) {
   const [typeCate, setTypeCate] = useState('');
   const [openAlert, setOpenAlert] = useState(false);
   const [id, setId] = useState('');
-
   const [data, setData] = useState({ price: '', img: require('../assets/question.png'), typeCate: '', categories: '', date: '', note: '', with: '' });
 
   //DATE 
@@ -32,6 +29,7 @@ function AddScreen({ navigation, route }) {
   const today = new Date();
   const startDate = getFormatedDate(today.setDate(today.getDate() + 1), 'YYYY/MM/DD');
 
+  //Truyền dữ liệu route
   const { textCate, imgCate, cateType } = route.params || {};
   const { itemProp } = route.params || {};
 
@@ -49,30 +47,16 @@ function AddScreen({ navigation, route }) {
     }
   }, [itemProp, route])
 
-  useFocusEffect(
-    React.useCallback(() => {
-      setTextCate1(textCate);
-      setImgCate1(imgCate);
-      setTypeCate(cateType);
-    }, [textCate, imgCate, cateType])
-  );
+  useEffect(() => {
+    setTextCate1(textCate);
+    setImgCate1(imgCate);
+    setTypeCate(cateType);
+  }, [textCate, imgCate, cateType]);
 
+  //Save dữ liệu
   useEffect(() => {
     navigation.navigate('Transaction', { dataProp: data, deleteId: id });
   }, [data]);
-
-  const deleteHandle = () => {
-    navigation.navigate('Transaction', { dataProp: [], deleteId: id });
-    setPrice('')
-    setNote('')
-    setDate('')
-    setWho('')
-    setTextCate1('')
-    setImgCate1('')
-    setTypeCate('')
-    setId('')
-    setEditFlat(false)
-  }
 
   const saveHandle = () => {
     if (!price || !date || !textCate1) {
@@ -92,10 +76,26 @@ function AddScreen({ navigation, route }) {
     }
   }
 
+  //Xóa dữ liệu
+  const deleteHandle = () => {
+    navigation.navigate('Transaction', { dataProp: [], deleteId: id });
+    setPrice('')
+    setNote('')
+    setDate('')
+    setWho('')
+    setTextCate1('')
+    setImgCate1('')
+    setTypeCate('')
+    setId('')
+    setEditFlat(false)
+  }
+
+  //Lựa chọn cate
   const onPressHandle = () => {
     navigation.navigate('Select Categories');
   }
 
+  //Exit 
   const ExitHandle = () => {
     navigation.navigate('Transaction')
     setPrice('')
@@ -109,6 +109,7 @@ function AddScreen({ navigation, route }) {
     setEditFlat(false)
   }
 
+  //Lựa chọn date
   function handleDateChange(propDate) {
     setDate(propDate)
   }

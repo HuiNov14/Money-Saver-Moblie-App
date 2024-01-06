@@ -95,6 +95,7 @@ const Transaction = ({ navigation, route }) => {
     }, [deleteId]);
     //----------------------------------------------------------------------------------------------------//
 
+    //Lấy dữ liệu lúc vừa vào
     useEffect(() => {
         getUserDataFromFirestore(userId);
     }, [userId]);
@@ -139,13 +140,12 @@ const Transaction = ({ navigation, route }) => {
 
         return acc;
     }, []);
+
     groupedData.sort((a, b) => {
         const convertToDate = (dateString) => {
             const [year, month, day] = dateString.split('/');
             return new Date(year, month - 1, day);
         };
-
-        // So sánh theo thứ tự từ lớn đến bé
         return convertToDate(b.date) - convertToDate(a.date);
     });
 
@@ -180,6 +180,10 @@ const Transaction = ({ navigation, route }) => {
         setOutFlow(sum2.toLocaleString('en-US'))
     }, [groupedData, selectedMonth]);
 
+    //View char handle
+    const viewChart = () => {
+        navigation.navigate('Chart', {data: userData, month: selectedMonth});
+    }
 
     //Display
     return (
@@ -265,7 +269,7 @@ const Transaction = ({ navigation, route }) => {
 
             <TouchableOpacity
                 style={styles.buttonContainer}
-            // onPress={() => addNote(title, context)}
+                onPress={viewChart}
             >
                 <Image
                     style={styles.imageStyle}

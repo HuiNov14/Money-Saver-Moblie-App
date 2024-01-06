@@ -14,6 +14,7 @@ const Login = () => {
   const handleLogin = async () => {
     try {
       const user = await signInWithEmailAndPassword(auth, email, password);
+      setPassword('')
       // console.log('Login Successed:', user);
       // Alert.alert('Login Successed');
       setisAuthenticated(true);

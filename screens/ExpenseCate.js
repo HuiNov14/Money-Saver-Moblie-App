@@ -1,13 +1,22 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity, } from 'react-native';
-import React from 'react';
+import React, { useContext } from 'react';
 import { Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from './AuthContext';
 
 function ExpenseCate() {
 
+    const { password, setPassword } = useContext(AuthContext);
     const navigation = useNavigation();
     const ClickedCategories = (text, img) => {
-        navigation.navigate('AddScreen', {textCate: text, imgCate: img, cateType: 'expense'});
+        if (password) {
+            setPassword('');
+            navigation.goBack()
+            navigation.navigate('AddBudget', { textCate: text, imgCate: img });
+        }
+        else {
+            navigation.navigate('AddScreen', { textCate: text, imgCate: img, cateType: 'expense' });
+        }
     }
 
     return (
@@ -149,7 +158,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         // backgroundColor: 'white',
         alignItems: 'center',
-        width: '100%', 
+        width: '100%',
         padding: 10,
         // borderBottomWidth: 0.5,
         borderColor: '#003049',
@@ -158,7 +167,7 @@ const styles = StyleSheet.create({
     imageCate: {
         width: 35,
         height: 35,
-        marginRight: 20, 
+        marginRight: 20,
         marginLeft: 10,
     },
     textCate: {

@@ -4,6 +4,9 @@ import MainTab from '../screens/MainTab'
 import About from '../screens/About'
 import Help from '../screens/Help';
 import Setting from "../screens/Setting";
+import AddBudget from "../screens/AddBudget";
+import Chart from "../screens/Chart";
+import Notifications from "../screens/Notifications"
 import { Ionicons } from '@expo/vector-icons';
 
 
@@ -47,6 +50,36 @@ const MainDrawer = () => {
       <Drawer.Screen
         name="Setting"
         component={Setting}
+        options={{
+          headerShown: showHeader,
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="help-circle-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="AddBudget"
+        component={AddBudget}
+        options={{
+          headerShown: showHeader,
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="help-circle-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Chart"
+        component={Chart}
+        options={{
+          headerShown: showHeader,
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="help-circle-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Notifications"
+        component={Notifications}
         options={{
           headerShown: showHeader,
           drawerIcon: ({ color, size }) => (
