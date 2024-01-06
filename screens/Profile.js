@@ -1,7 +1,6 @@
 import { View, Text, StyleSheet, Button, TouchableOpacity, Image } from 'react-native';
 import React, { useContext } from 'react';
-import { AuthContext } from './AuthContext';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { AuthContext } from '../LoginNavigator/AuthContext';
 
 const Profile = ({ navigation }) => {
   const { email, setisAuthenticated } = useContext(AuthContext);

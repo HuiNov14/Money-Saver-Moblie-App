@@ -1,12 +1,8 @@
 import { View, Text, StyleSheet, Button, Image, TouchableOpacity, TextInput, Modal, Alert } from 'react-native';
 import React, { useContext, useState, useEffect } from 'react';
-import { AuthContext } from './AuthContext';
-import Categories from './Categories';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { AuthContext } from '../LoginNavigator/AuthContext';
 import IonIcon from "react-native-vector-icons/Ionicons";
 import DatePicker from "react-native-modern-datepicker"
-import { getToday, getFormatedDate } from "react-native-modern-datepicker";
-import { createStackNavigator } from '@react-navigation/stack';
 
 function AddBudget({ navigation, route }) {
 

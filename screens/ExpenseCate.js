@@ -1,8 +1,7 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity, } from 'react-native';
 import React, { useContext } from 'react';
-import { Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { AuthContext } from './AuthContext';
+import { AuthContext } from '../LoginNavigator/AuthContext';
 
 function ExpenseCate() {
 

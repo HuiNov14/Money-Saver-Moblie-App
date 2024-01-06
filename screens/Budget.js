@@ -1,12 +1,10 @@
 import { View, Text, StyleSheet, Button, Image, TouchableOpacity, TextInput, Modal, FlatList } from 'react-native';
 import React, { useContext, useState, useEffect } from 'react';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import IonIcon from "react-native-vector-icons/Ionicons"; import { getFirestore, collection, addDoc, doc, setDoc, getDocs, deleteDoc, updateDoc } from 'firebase/firestore';
 import { FirebaseDB } from '../database/firebaseConfig';
-import { AuthContext } from './AuthContext';
-import { setImgBasedOnCategory } from './setImg';
+import { AuthContext } from '../LoginNavigator/AuthContext';
+import { setImgBasedOnCategory } from '../components/setImg';
 import DatePicker from "react-native-modern-datepicker"
-import { getToday, getFormatedDate } from "react-native-modern-datepicker";
 
 const Budget = ({ navigation, route }) => {
 

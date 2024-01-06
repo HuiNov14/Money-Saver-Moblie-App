@@ -1,8 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, Modal } from 'react-native'
 import React, { useEffect, useState, useContext } from 'react';
-import { getFirestore, collection, addDoc, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
-import { FirebaseDB } from '../database/firebaseConfig';
-import { AuthContext } from './AuthContext';
+
 
 export const setImgBasedOnCategory = (category) => {
     switch (category) {

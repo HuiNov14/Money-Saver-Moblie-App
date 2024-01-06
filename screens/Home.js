@@ -1,60 +1,9 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import React, { useEffect, useState, useContext } from 'react';
-import { Button } from 'react-native';
-import { createStackNavigator } from '@react-navigation/stack';
-import IonIcon from "react-native-vector-icons/Ionicons";
 import { FirebaseDB } from '../database/firebaseConfig';
 import { getFirestore, collection, addDoc, doc, setDoc, getDocs, deleteDoc, updateDoc } from 'firebase/firestore';
-import { AuthContext } from './AuthContext';
-import { PieChart, LineChart } from 'react-native-chart-kit';
-
-
-const PChart = ({ data }) => {
-
-  const categoriesTotal = {};
-  data.forEach(item => {
-    const categoryName = item.categories;
-    const price = parseFloat(item.price);
-    if (categoriesTotal[categoryName]) {
-      categoriesTotal[categoryName] += price;
-    } else {
-      categoriesTotal[categoryName] = price;
-    }
-  });
-
-  const chartColors = [
-    '#012a4a', '#013a63', '#01497c', '#014f86', '#2a6f97',
-    '#2c7da0', '#468faf', '#61a5c2', '#89c2d9', '#a9d6e5',
-    '#1a759f', '#168aad', '#34a0a4', '#52b69a', '#76c893',
-    '#99d98c', '#b5e48c', '#d9ed92', '#008000', '#004b23',
-  ];
-
-
-  const chartData = Object.keys(categoriesTotal).map((categoryName, index) => ({
-    name: categoryName,
-    value: categoriesTotal[categoryName],
-    color: chartColors[index % chartColors.length],
-  }));
-
-  return (
-    <View style={styles.chartContainer}>
-      <PieChart
-        data={chartData}
-        width={300}
-        height={200}
-        chartConfig={{
-          backgroundGradientFrom: '#1E2923',
-          backgroundGradientTo: '#08130D',
-          color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
-        }}
-        accessor="value"
-        backgroundColor="transparent"
-        paddingLeft="20"
-        hasLegend={true}
-      />
-    </View>
-  );
-};
+import { AuthContext } from '../LoginNavigator/AuthContext';
+import { PChart } from '../components/PChart';
 
 function Home({ navigation }) {
 

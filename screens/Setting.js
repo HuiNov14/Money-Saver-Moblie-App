@@ -1,10 +1,9 @@
 import { View, Text, StyleSheet, Button, Image, TouchableOpacity, TextInput, Modal, Alert } from 'react-native';
 import React, { useContext, useState, useEffect } from 'react';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import IonIcon from "react-native-vector-icons/Ionicons";
 import { FirebaseAuth } from '../database/firebaseConfig';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword } from 'firebase/auth';
-import { AuthContext } from './AuthContext';
+import { AuthContext } from '../LoginNavigator/AuthContext';
 
 function Setting({ navigation }) {
 
