@@ -5,10 +5,14 @@ import IonIcon from "react-native-vector-icons/Ionicons";
 import DatePicker from "react-native-modern-datepicker"
 import { getToday, getFormatedDate } from "react-native-modern-datepicker";
 import { createStackNavigator } from '@react-navigation/stack';
+import { AuthContext } from '../LoginNavigator/AuthContext';
 
 const Stack = createStackNavigator();
 
 function AddScreen({ navigation, route }) {
+
+  const { email, setEmail } = useContext(AuthContext);
+  const userId = email;
 
   const [price, setPrice] = useState('');
   const [note, setNote] = useState('');
@@ -45,16 +49,26 @@ function AddScreen({ navigation, route }) {
     }
   }, [itemProp, route])
 
+  //Dữ liệu truyền selected cate
   useEffect(() => {
     setTextCate1(textCate);
     setImgCate1(imgCate);
     setTypeCate(cateType);
   }, [textCate, imgCate, cateType]);
 
-  //Save dữ liệu
+  //Lưu dữ liệu
   useEffect(() => {
-    navigation.navigate('Transaction', { dataProp: data, deleteId: id });
+    if (data.price === '') {
+      console.log('Add Transaction Screen open')
+    }
+    else {
+      navigation.navigate('Transaction', { dataProp: data, deleteId: id });
+    }
   }, [data]);
+
+  useEffect(() => {
+    navigation.navigate('Home');
+  }, [userId]);
 
   const saveHandle = () => {
     if (!price || !date || !textCate1) {

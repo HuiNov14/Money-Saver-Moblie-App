@@ -9,7 +9,6 @@ const Signup = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  // const [username, setUsername] = useState('');
   const [confirm, setConfirm] = useState('');
   const auth = FirebaseAuth;
 
@@ -41,15 +40,6 @@ const Signup = () => {
         source={require('../assets/piggy-bank.png')}
       />
       <Text style={styles.text}>Create New Account</Text>
-      {/* <View style={styles.containerTextInput}>
-        <Image style={styles.imageTextInput} source={{ uri: 'https://tse4.explicit.bing.net/th?id=OIP.5ylLzBNwByczTaKBCAi9IgHaHa&pid=Api&P=0&h=220' }} />
-        <TextInput
-          style={styles.textI}
-          placeholder="Enter username"
-          value={username}
-          onChangeText={setUsername}
-        />
-      </View> */}
       <View style={styles.containerTextInput}>
         <Image style={styles.imageTextInput} source={require('../assets/mail.png')} />
         <TextInput

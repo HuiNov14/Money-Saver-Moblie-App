@@ -5,40 +5,17 @@ import { getFirestore, collection, addDoc, doc, setDoc, getDocs, deleteDoc, upda
 import { FirebaseDB } from '../database/firebaseConfig';
 import { AuthContext } from '../LoginNavigator/AuthContext';
 import { setImgBasedOnCategory } from '../components/setImg';
+import { addUserDataToFirestore, deleteDocumentFromFirestore } from '../components/FireBaseHandle';
+import { getToday, getFormatedDate } from "react-native-modern-datepicker";
+import { decrementMonth, incrementMonth } from '../components/MonthChange';
 
 const Transaction = ({ navigation, route }) => {
 
-    //------------------------------------------Data process------------------------------------------------//
     const [userData, setUserData] = useState([])
-    const [total, setTotal] = useState(0)
-    const [totalMonth, setTotalMonth] = useState(0)
-    const [inflow, setInflow] = useState(0)
-    const [Outflow, setOutFlow] = useState(0)
     const { email, setEmail } = useContext(AuthContext);
     const userId = email;
 
-    //Thêm dữ liệu vào firebase
-    const addUserDataToFirestore = async (dataProp) => {
-        const userDocRef = doc(FirebaseDB, 'userAccounts', userId);
-
-        try {
-            // Tạo hoặc cập nhật tài liệu người dùng
-            await setDoc(userDocRef, { email: userId, totalCash: 0 });
-
-            // Thêm dữ liệu vào subcollection 'transactions'
-            const transactionsCollectionRef = collection(userDocRef, 'transactions');
-
-            const { img, ...rest } = dataProp;
-            await addDoc(transactionsCollectionRef, rest);
-
-            console.log('Dữ liệu đã được thêm vào Firestore thành công.');
-            getUserDataFromFirestore(userId);
-        } catch (error) {
-            console.error('Lỗi khi thêm dữ liệu vào Firestore:', error);
-        }
-    };
-
-    //Lấy dữ liệu từ firebase
+    //Hàm lấy dữ liệu
     const getUserDataFromFirestore = async (userId) => {
         const userDocRef = doc(FirebaseDB, 'userAccounts', userId);
         const transactionsCollectionRef = collection(userDocRef, 'transactions');
@@ -68,38 +45,43 @@ const Transaction = ({ navigation, route }) => {
         }
     };
 
-    //Xóa dữ liệu trên firebase
-    const deleteDocumentFromFirestore = async (userId, documentId) => {
-        const userDocRef = doc(FirebaseDB, 'userAccounts', userId);
-        const transactionsCollectionRef = collection(userDocRef, 'transactions');
-        const documentRef = doc(transactionsCollectionRef, documentId);
-
-        try {
-            await deleteDoc(documentRef);
-            getUserDataFromFirestore(userId);
-            console.log('Dữ liệu đã được xóa thành công.');
-        } catch (error) {
-            console.error('Lỗi khi xóa dữ liệu:', error);
-        }
-    };
-
-    const { dataProp, deleteId } = route.params || {};
-    useEffect(() => {
-        if (deleteId) {
-            deleteDocumentFromFirestore(userId, deleteId)
-        }
-    }, [deleteId]);
-    //----------------------------------------------------------------------------------------------------//
-
     //Lấy dữ liệu lúc vừa vào
     useEffect(() => {
         getUserDataFromFirestore(userId);
     }, [userId]);
 
-    //Month Change
+    //Xóa Dữ liệu
+    const { dataProp, deleteId } = route.params || {};
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (deleteId) {
+                await deleteDocumentFromFirestore(userId, deleteId);
+                getUserDataFromFirestore(userId);
+            }
+        };
+
+        fetchData();
+    }, [deleteId]);
+
+    //Thêm dữ liệu
+    useEffect(() => {
+        const fetchData = async () => {
+            if (dataProp && dataProp.price) {
+                await addUserDataToFirestore(userId, dataProp);
+                getUserDataFromFirestore(userId);
+            }
+        };
+
+        fetchData();
+    }, [dataProp]);
+
+    //Xử lý ngày tháng
     const [open, setOpen] = useState(false);
     const [date, setDate] = useState(false);
-    const [selectedMonth, setSelectedMonth] = useState('2024/01');
+    const today = new Date();
+    const startDate = getFormatedDate(today.setDate(today.getDate()), 'YYYY/MM');
+    const [selectedMonth, setSelectedMonth] = useState(startDate);
 
     const handleMonthPress = (month) => {
         setSelectedMonth(month)
@@ -118,7 +100,12 @@ const Transaction = ({ navigation, route }) => {
         navigation.navigate('AddScreen', { itemProp: itemProp });
     }
 
-    // Sử dụng hàm này trong quá trình xử lý dữ liệu
+    //Switch to Chart Screen
+    const viewChart = () => {
+        navigation.navigate('Chart', { data: userData, month: selectedMonth });
+    }
+
+    //Thêm img vào userData
     const updatedUserData = userData.map(item => {
         const img = setImgBasedOnCategory(item.categories);
         return { ...item, img };
@@ -145,14 +132,12 @@ const Transaction = ({ navigation, route }) => {
         return convertToDate(b.date) - convertToDate(a.date);
     });
 
-    //Add data
-    useEffect(() => {
-        if (dataProp && dataProp.price) {
-            addUserDataToFirestore(dataProp);
-        }
-    }, [dataProp]);
+    //Cập nhật tổng inflow, outflow, total của từng tháng
+    const [total, setTotal] = useState(0)
+    const [totalMonth, setTotalMonth] = useState(0)
+    const [inflow, setInflow] = useState(0)
+    const [Outflow, setOutFlow] = useState(0)
 
-    //Inflow and outFlow by month
     useEffect(() => {
         const sum1 = groupedData
             .filter((group) => group.date.startsWith(selectedMonth))
@@ -175,11 +160,6 @@ const Transaction = ({ navigation, route }) => {
         setInflow(sum1.toLocaleString('en-US'))
         setOutFlow(sum2.toLocaleString('en-US'))
     }, [groupedData, selectedMonth]);
-
-    //View char handle
-    const viewChart = () => {
-        navigation.navigate('Chart', {data: userData, month: selectedMonth});
-    }
 
     //Display
     return (
@@ -215,9 +195,9 @@ const Transaction = ({ navigation, route }) => {
                 <TouchableOpacity
                     style={[
                         styles.MonthTouch,
-                        selectedMonth === '2023/12' && styles.SelectedMonth,
+                        selectedMonth === (decrementMonth(startDate)) && styles.SelectedMonth,
                     ]}
-                    onPress={() => handleMonthPress('2023/12')}
+                    onPress={() => handleMonthPress(decrementMonth(startDate))}
                 >
                     <Text style={styles.MonthText}>
                         LAST MONTH
@@ -226,9 +206,9 @@ const Transaction = ({ navigation, route }) => {
                 <TouchableOpacity
                     style={[
                         styles.MonthTouch,
-                        selectedMonth === '2024/01' && styles.SelectedMonth,
+                        selectedMonth === startDate && styles.SelectedMonth,
                     ]}
-                    onPress={() => handleMonthPress('2024/01')}
+                    onPress={() => handleMonthPress(startDate)}
                 >
                     <Text style={styles.MonthText}>
                         THIS MONTH
@@ -237,9 +217,9 @@ const Transaction = ({ navigation, route }) => {
                 <TouchableOpacity
                     style={[
                         styles.MonthTouch,
-                        selectedMonth === '2024/02' && styles.SelectedMonth,
+                        selectedMonth === (incrementMonth(startDate)) && styles.SelectedMonth,
                     ]}
-                    onPress={() => handleMonthPress('2024/02')}
+                    onPress={() => handleMonthPress(incrementMonth(startDate))}
                 >
                     <Text style={styles.MonthText}>
                         NEXT MONTH

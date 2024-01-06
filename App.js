@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import React, {useState} from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import {AuthProvider} from './LoginNavigator/AuthContext'
-import AppNavigator from './AppNavigator'
+import AppNavigator from './MainNavigator/AppNavigator'
 
 //MSSV: 21520910
 //Tên: Bùi Minh Huy

@@ -1,9 +1,9 @@
 import React, {useContext} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
-import MainDrawer from './MainNavigator/MainDrawer';
-import AuthStack from './LoginNavigator/AuthStack'
-import {AuthContext} from './LoginNavigator/AuthContext'
+import MainDrawer from './MainDrawer';
+import AuthStack from '../LoginNavigator/AuthStack'
+import {AuthContext} from '../LoginNavigator/AuthContext'
 
 const Stack = createStackNavigator();
 

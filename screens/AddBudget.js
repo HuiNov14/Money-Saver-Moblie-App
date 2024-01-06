@@ -37,14 +37,20 @@ function AddBudget({ navigation, route }) {
         }
     }, [itemProp, route])
 
+    //Dữ liệu selected cate
     useEffect(() => {
         setTextCate1(textCate);
         setImgCate1(imgCate);
     }, [textCate, imgCate]);
 
-    //Save dữ liệu
+    //Lưu dữ liệu
     useEffect(() => {
-        navigation.navigate('Budget', { dataProp: data, deleteId: id });
+        if (data.price === '') {
+            console.log('Add Budget Screen open');
+        }
+        else {
+            navigation.navigate('Budget', { dataProp: data, deleteId: id });
+        }
     }, [data]);
 
     const saveHandle = () => {
@@ -65,7 +71,7 @@ function AddBudget({ navigation, route }) {
         }
     }
 
-    //Delete dữ liệu
+    //Xóa dữ liệu
     const deleteHandle = () => {
         navigation.navigate('Budget', { dataProp: [], deleteId: id });
         setPrice('')
@@ -77,7 +83,7 @@ function AddBudget({ navigation, route }) {
         setId('')
     }
 
-    //Exit button
+    //Exit
     const ExitHandle = () => {
         navigation.navigate('Budget');
         setPrice('')

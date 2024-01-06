@@ -4,6 +4,7 @@ import { FirebaseDB } from '../database/firebaseConfig';
 import { getFirestore, collection, addDoc, doc, setDoc, getDocs, deleteDoc, updateDoc } from 'firebase/firestore';
 import { AuthContext } from '../LoginNavigator/AuthContext';
 import { PChart } from '../components/PChart';
+import { getToday, getFormatedDate } from "react-native-modern-datepicker";
 
 function Home({ navigation }) {
 
@@ -42,30 +43,38 @@ function Home({ navigation }) {
     }
   };
 
-  //see all handle
+  //Switch to transaction screen
   const seeAllHandle = () => {
     navigation.navigate('Transaction')
   }
-  //see report handle
+  //Switch to report screen
   const seeReport = () => {
-    navigation.navigate('Chart', { data: userData, month: '2024/01' })
+    navigation.navigate('Chart', { data: userData, month: startDate })
   }
-  //see budget handle
+  //Switch to budget screen
   const seeBudget = () => {
     navigation.navigate('Budget')
   }
 
+  //Switch to notification screen
   const onPressHandle = () => {
     navigation.navigate('Notifications');
   }
 
-  const [selectedMonth, setSelectedMonth] = useState('2024/01');
+  const today = new Date();
+  const startDate = getFormatedDate(today.setDate(today.getDate()), 'YYYY/MM');
+  const [selectedMonth, setSelectedMonth] = useState(startDate);
 
   //Lấy dữ liệu lúc vừa vào
   useEffect(() => {
     getUserDataFromFirestore(userId);
   }, [userId, selectedMonth]);
-  
+
+  useEffect(() => {
+    navigation.navigate('Add');
+  }, [userId]);
+
+  //Cập nhật dữ liệu theo tháng
   const updateDataByMonth = (month, allData) => {
     const filteredData = allData.filter(item => item.date.startsWith(month));
 
@@ -139,9 +148,9 @@ function Home({ navigation }) {
           <TouchableOpacity
             style={[
               styles.MonthTouch,
-              selectedMonth === '2024/01' && styles.SelectedMonth,
+              selectedMonth === startDate && styles.SelectedMonth,
             ]}
-            onPress={() => { setSelectedMonth('2024/01') }}
+            onPress={() => { setSelectedMonth(startDate) }}
           >
             <Text style={styles.MonthText}>
               THIS MONTH

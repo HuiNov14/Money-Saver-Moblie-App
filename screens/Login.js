@@ -15,12 +15,9 @@ const Login = () => {
     try {
       const user = await signInWithEmailAndPassword(auth, email, password);
       setPassword('')
-      // console.log('Login Successed:', user);
-      // Alert.alert('Login Successed');
       setisAuthenticated(true);
     } catch (error) {
       Alert.alert('Login Failed', 'Incorrect Password or Email');
-      // console.error('Login Failed:', error.code, error.message);
     }
   };
 

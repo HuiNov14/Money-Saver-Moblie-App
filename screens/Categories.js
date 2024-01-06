@@ -1,8 +1,5 @@
 import { View, Text, StyleSheet, Button, Image, TouchableOpacity, TextInput } from 'react-native';
 import React, { useContext, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import IonIcon from "react-native-vector-icons/Ionicons";
-import { createStackNavigator } from '@react-navigation/stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import ExpenseCate from './ExpenseCate';
 import IncomeCate from './IncomeCate';

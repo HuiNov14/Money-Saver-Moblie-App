@@ -5,67 +5,17 @@ import { FirebaseDB } from '../database/firebaseConfig';
 import { AuthContext } from '../LoginNavigator/AuthContext';
 import { setImgBasedOnCategory } from '../components/setImg';
 import DatePicker from "react-native-modern-datepicker"
+import { addUserDataToFirestore2, deleteDocumentFromFirestore2 } from '../components/FireBaseHandle';
+import { getToday, getFormatedDate } from "react-native-modern-datepicker";
+import { decrementMonth, incrementMonth } from '../components/MonthChange';
 
 const Budget = ({ navigation, route }) => {
 
-    //------------------------------------------Data process------------------------------------------------//
     const [userData, setUserData] = useState([])
-    const { email, setEmail } = useContext(AuthContext);
+    const { email } = useContext(AuthContext);
     const userId = email;
 
-    //Thêm dữ liệu vào firebase
-    const addUserDataToFirestore = async (dataProp) => {
-        const userDocRef = doc(FirebaseDB, 'userAccounts', userId);
-        const transactionsCollectionRef = collection(userDocRef, 'transactions');
-
-        try {
-            await setDoc(userDocRef, { email: userId });
-            const budgetsCollectionRef = collection(userDocRef, 'Budgets');
-
-            const { img, ...rest } = dataProp;
-            await addDoc(budgetsCollectionRef, rest);
-
-            console.log('Dữ liệu budget đã được thêm vào Firestore thành công.');
-
-            //Thêm totalCost
-            const querySnapshot = await getDocs(transactionsCollectionRef);
-
-            const userData2 = [];
-
-            querySnapshot.forEach((doc) => {
-                userData2.push({ id: doc.id, ...doc.data() });
-            });
-
-            const budgetsSnapshot = await getDocs(budgetsCollectionRef);
-            const budgetsData = [];
-
-            budgetsSnapshot.forEach((doc) => {
-                budgetsData.push({ id: doc.id, ...doc.data() });
-            });
-
-            budgetsData.forEach(async (budget) => {
-                const { startDate, endDate, categories } = budget;
-
-                const transactionsInDateRange = userData2.filter((transaction) => {
-                    const transactionDate = transaction.date;
-                    return transactionDate >= startDate && transactionDate <= endDate;
-                });
-
-                const totalCost = transactionsInDateRange.reduce((sum, transaction) => {
-                    return sum + (transaction.categories === categories ? +transaction.price : +0);
-                }, 0);
-
-                await updateDoc(doc(budgetsCollectionRef, budget.id), { totalCost });
-            });
-            console.log('Thêm total cost thành công');
-
-            getUserDataFromFirestore(userId);
-        } catch (error) {
-            console.error('Lỗi khi thêm dữ liệu budget vào Firestore:', error);
-        }
-    };
-
-    //Lấy dữ liệu budget từ firebase
+    //Lấy dữ liệu
     const getUserDataFromFirestore = async (userId) => {
         const userDocRef = doc(FirebaseDB, 'userAccounts', userId);
         const budgetsCollectionRef = collection(userDocRef, 'Budgets');
@@ -88,32 +38,12 @@ const Budget = ({ navigation, route }) => {
         }
     };
 
-    //Xóa dữ liệu trên firebase
-    const deleteDocumentFromFirestore = async (userId, documentId) => {
-        const userDocRef = doc(FirebaseDB, 'userAccounts', userId);
-        const budgetsCollectionRef = collection(userDocRef, 'Budgets');
-        const documentRef = doc(budgetsCollectionRef, documentId);
-
-        try {
-            await deleteDoc(documentRef);
-            getUserDataFromFirestore(userId);
-            console.log('Dữ liệu đã được xóa thành công.');
-        } catch (error) {
-            console.error('Lỗi khi xóa dữ liệu:', error);
-        }
-    };
-
-    const { dataProp, deleteId } = route.params || {};
-    useEffect(() => {
-        if (deleteId) {
-            deleteDocumentFromFirestore(userId, deleteId)
-        }
-    }, [deleteId]);
-    //----------------------------------------------------------------------------------------------------//
-
+    //Xử lý ngày tháng
     const [open, setOpen] = useState(false);
     const [date, setDate] = useState(false);
-    const [selectedMonth, setSelectedMonth] = useState('2024/01');
+    const today = new Date();
+    const startDate = getFormatedDate(today.setDate(today.getDate()), 'YYYY');
+    const [selectedMonth, setSelectedMonth] = useState(startDate);
 
     const handleMonthPress = (month) => {
         setSelectedMonth(month)
@@ -127,6 +57,19 @@ const Budget = ({ navigation, route }) => {
         setSelectedMonth(date)
     }
 
+    //Xóa dữ liệu 
+    const { dataProp, deleteId } = route.params || {};
+    useEffect(() => {
+        const fetchData = async () => {
+            if (deleteId) {
+                await deleteDocumentFromFirestore2(userId, deleteId)
+                getUserDataFromFirestore(userId);
+            }
+        };
+
+        fetchData();
+    }, [deleteId]);
+
     //Lấy dữ liệu lúc mới vào
     useEffect(() => {
         getUserDataFromFirestore(userId);
@@ -134,9 +77,14 @@ const Budget = ({ navigation, route }) => {
 
     //Khi data mới được thêm vào thì thêm data vào firebase
     useEffect(() => {
-        if (dataProp && dataProp.price) {
-            addUserDataToFirestore(dataProp);
-        }
+        const fetchData = async () => {
+            if (dataProp && dataProp.price) {
+                await addUserDataToFirestore2(userId, dataProp);
+                getUserDataFromFirestore(userId);
+            }
+        };
+
+        fetchData();
     }, [dataProp]);
 
     //Switch sang new budget
@@ -144,7 +92,7 @@ const Budget = ({ navigation, route }) => {
         navigation.navigate('AddBudget');
     }
 
-    //Switch to Edit budget
+    //Switch sang Edit budget
     const SwToEdit = (itemProp) => {
         navigation.navigate('AddBudget', { itemProp: itemProp });
     }
@@ -181,9 +129,9 @@ const Budget = ({ navigation, route }) => {
                 <TouchableOpacity
                     style={[
                         styles.MonthTouch,
-                        selectedMonth === '2024' && styles.SelectedMonth,
+                        selectedMonth === startDate && styles.SelectedMonth,
                     ]}
-                    onPress={() => { setSelectedMonth('2024') }}
+                    onPress={() => { setSelectedMonth(startDate) }}
                 >
                     <Text style={styles.MonthText}>
                         RUNNING
@@ -192,9 +140,9 @@ const Budget = ({ navigation, route }) => {
                 <TouchableOpacity
                     style={[
                         styles.MonthTouch,
-                        selectedMonth === '2023' && styles.SelectedMonth,
+                        selectedMonth === (startDate-1) && styles.SelectedMonth,
                     ]}
-                    onPress={() => { setSelectedMonth('2023') }}
+                    onPress={() => { setSelectedMonth(startDate-1) }}
                 >
                     <Text style={styles.MonthText}>
                         FINISHED

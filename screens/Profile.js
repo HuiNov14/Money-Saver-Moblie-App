@@ -3,6 +3,7 @@ import React, { useContext } from 'react';
 import { AuthContext } from '../LoginNavigator/AuthContext';
 
 const Profile = ({ navigation }) => {
+  
   const { email, setisAuthenticated } = useContext(AuthContext);
   const handleLogout = () => {
     setisAuthenticated(false);
@@ -53,7 +54,7 @@ const Profile = ({ navigation }) => {
           style={styles.imageStyle2}
           source={require('../assets/setting.png')}
         />
-        <Text style={styles.buttonText}>Settings</Text>
+        <Text style={styles.buttonText}>Setting Account</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.buttonContainer}
