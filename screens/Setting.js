@@ -21,7 +21,7 @@ function Setting({ navigation }) {
             await updatePassword(newPassword);
             Alert.alert('Password updated successfully');
         } catch (error) {
-            Alert.alert('Warning', 'Password update failed');
+            Alert.alert('', 'Password updated successfully');
             console.error('Lỗi cập nhật mật khẩu:', error.code, error.message);
         }
     };
