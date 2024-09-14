@@ -15,7 +15,7 @@
    
 3. Clone the Repository
 
-       git clone https://github.com/your-username/your-repo-name.git
+       git clone https://github.com/HuiNov14/Money-Saver-Moblie-App/.git
 
 4. Install Dependencies
 
