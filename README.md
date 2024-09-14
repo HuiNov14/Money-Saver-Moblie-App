@@ -7,7 +7,7 @@
    
     React Native CLI: Guide users to install the React Native CLI using the following command:
    
-      npm install -g react-native-cli
+       npm install -g react-native-cli
    
     Android Studio / Xcode: Include instructions on setting up Android Studio (for Android development) or Xcode (for iOS development), depending on the platform(s) your app supports. Also, mention enabling the required SDKs and simulators.
    
@@ -19,18 +19,19 @@
 
     Using npm or yarn:
    
-      npm install
-      or
-      yarn install
+       npm install
+       or
+       yarn install
    
 5. Running the Application
 
    for Android:
    
-      npx react-native run-android
+       npx react-native run-android
    
-   for Ios:
+   for IOS:
    
-     npx react-native run-ios
+      npx react-native run-ios
 
-## Report Details & Video Demo: https://drive.google.com/drive/u/0/folders/1R96DIOMLl6QcpMflxB--9dkMiGu_xija
+## Report Details & Video Demo: 
+https://drive.google.com/drive/u/0/folders/1R96DIOMLl6QcpMflxB--9dkMiGu_xija
