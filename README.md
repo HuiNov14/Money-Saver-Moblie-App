@@ -15,6 +15,8 @@
    
 3. Clone the Repository
 
+       git clone https://github.com/your-username/your-repo-name.git
+
 4. Install Dependencies
 
     Using npm or yarn:
@@ -31,7 +33,7 @@
    
    for IOS:
    
-      npx react-native run-ios
+       npx react-native run-ios
 
 ## Report Details & Video Demo: 
 https://drive.google.com/drive/u/0/folders/1R96DIOMLl6QcpMflxB--9dkMiGu_xija
